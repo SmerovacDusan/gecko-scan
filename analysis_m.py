@@ -2,7 +2,9 @@ import whois
 import requests
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
+import pdf_report_generator_m
 
+# VIRUS TOTAL
 def virus_total_analysis(target):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -36,21 +38,45 @@ def virus_total_analysis(target):
 
         return {"score": score, "detections": detections}
 
+# WHOIS
 def whois_analysis(target):
     try:
-        return str(whois.whois(target))
+        info = whois.whois(target)
+
+        updated = info.updated_date
+        if isinstance(updated, list):
+            updated = max(updated)
+
+        return {
+            "domain": info.domain_name,
+            "last_update": updated,
+            "created": info.creation_date,
+            "expiration": info.expiration_date,
+            "registrar": info.registrar,
+            "registrant": info.registrant_name,
+            "name_servers": info.name_servers,
+        }
+
+    except Exception:
+        return "NOT FOUND"
     except Exception:
         return "NOT FOUND"
 
+# WHERE GOES
 def where_goes_analysis(target):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
         page.goto("https://wheregoes.com/")
-        page.click('button:has-text("Agree")')
+
+        #agree_btn = page.locator('button:has-text("Agree")')
+        #if agree_btn.count() > 0:
+        #    agree_btn.first.click()
+
         page.fill('input#url', target)
-        page.click('input#form_button')
+        page.wait_for_timeout(5000)
+        page.locator('#form_button').click(force=True)
         page.wait_for_timeout(5000)
 
         result_url = page.url
@@ -72,8 +98,103 @@ def where_goes_analysis(target):
 
     return where_goes_info
 
+# DNSDUMPSTER
+def parse_dnsdumpster_table(raw_rows):
+    records = []
+
+    if not raw_rows or len(raw_rows) < 2:
+        return records
+
+    for row in raw_rows[1:]:  # skip header
+        if len(row) < 6:
+            continue
+
+        host = row[0].strip()
+
+        # IP
+        ip = row[1].split("\n")[0].strip()
+
+        # ASN + subnet
+        asn_lines = [l.strip() for l in row[2].split("\n") if l.strip()]
+        asn = " ".join(asn_lines).replace("ASN:", "").strip()
+
+        # ASN name + country
+        asn_name = " ".join(
+            l.strip() for l in row[3].split("\n") if l.strip()
+        )
+
+        # OPEN SERVICES
+        services_lines = [
+            l.strip()
+            for l in row[4].split("\n")
+            if l.strip()
+        ]
+        open_services = "\n".join(services_lines) if services_lines else "none"
+
+        records.append({
+            "host": host,
+            "ip": ip,
+            "asn": asn,
+            "asn_name": asn_name,
+            "open_services": open_services
+        })
+
+    return records
+    
+def dnsdumpster_analysis(target):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+
+        page.goto("https://dnsdumpster.com/")
+        page.fill("input#target", target)
+        page.click('button:has-text("Start Test!")')
+        page.wait_for_timeout(6000)
+
+        # Helper - table extraction
+        def get_table_rows(locator):
+            rows = []
+            table = page.locator(locator)
+            tr_elements = table.locator("tr").all()
+            for tr in tr_elements:
+                cells = tr.locator("th, td").all()
+                row = [c.inner_text().strip() for c in cells]
+                rows.append(row)
+            return rows
+
+        a_raw = get_table_rows("#a_rec_table")
+        mx_raw = get_table_rows('text=MX Records >> xpath=./following-sibling::table[1]')
+        ns_raw = get_table_rows('text=NS Records >> xpath=./following-sibling::table[1]')
+
+        txt_cells = page.locator(
+            'text=TXT Records >> xpath=./following-sibling::table[1]//td'
+        ).all()
+        txt_records = [c.inner_text().strip() for c in txt_cells]
+
+        browser.close()
+    
+    a_records = parse_dnsdumpster_table(a_raw)
+    mx_records = parse_dnsdumpster_table(mx_raw)
+    ns_records = parse_dnsdumpster_table(ns_raw)
+
+    return {
+        "a_records": a_records,
+        "mx_records": mx_records,
+        "ns_records": ns_records,
+        "txt_records": txt_records
+    }
+
 def analysis(target, tools):
-    # to be used in report generating
     virus_total_info = virus_total_analysis(target) if tools[0] else None
     whois_info = whois_analysis(target) if tools[1] else None
+    dnsdumpster_info = dnsdumpster_analysis(target) if tools[2] else None
     where_goes_info = where_goes_analysis(target) if tools[3] else None
+
+    pdf_report_generator_m.generate_report(
+        target,
+        tools,
+        virus_total_info,
+        whois_info,
+        dnsdumpster_info,
+        where_goes_info
+    ) 

@@ -85,17 +85,17 @@ def sites_connection():
 # help/command screen
 def commands():
     print("\nPOSSIBLE COMMANDS:")
-    print("menu -display menu")
+    print("tools -display tools")
     print("url  -set target")
     print("run  -run the URL analysis with selected tools")
     print("exit -exit from the app")
     print("help -display this message\n")
 
-# menu screen
-def menu():
+# tools screen
+def tools():
     global virus_total, whois, dns_dumpster, where_goes
-    print("MENU")
-    print("(Choose one or more sites. Use command exit to leave the menu screen)")
+    print("TOOLS")
+    print("(Choose one or more sites. Use command exit to leave the tools screen)")
     print("+======================================================================================+")
     print("| No. | Site        | Description                                                      |")
     print("+======================================================================================+")
@@ -112,9 +112,9 @@ def menu():
     "|     |             | shortened links, or tiny URLs                                    |")
     print("+======================================================================================+")
 
-    # menu command line
-    while (True):
-        choice = input("menu> ")
+    # tools command line
+    while True:
+        choice = input("tools> ")
 
         if choice == "exit":
             break
@@ -123,7 +123,7 @@ def menu():
             if choice == "1":
                 if virus_total:
                     print("VirusTotal already selected!")
-                    while(True):
+                    while True:
                         vt_unselect = input("Do you want to unselect it? [y/n]> ")
                         if vt_unselect.lower() == "y":
                             virus_total = False
@@ -140,7 +140,7 @@ def menu():
             elif choice == "2":
                 if whois:
                     print("Whois already selected!")
-                    while(True):
+                    while True:
                         whois_unselect = input("Do you want to unselect it? [y/n]> ")
                         if whois_unselect.lower() == "y":
                             whois = False
@@ -157,7 +157,7 @@ def menu():
             elif choice == "3":
                 if dns_dumpster:
                     print("DNSDumpster already selected!")
-                    while(True):
+                    while True:
                         dns_unselect = input("Do you want to unselect it? [y/n]> ")
                         if dns_unselect.lower() == "y":
                             dns_dumpster = False
@@ -174,7 +174,7 @@ def menu():
             elif choice == "4":
                 if where_goes:
                     print("WhereGoes already selected!")
-                    while(True):
+                    while True:
                         wg_unselect = input("Do you want to unselect it? [y/n]> ")
                         if wg_unselect.lower() == "y":
                             whois = False
@@ -192,7 +192,7 @@ def menu():
 # input check (enter), ask when rewriting
 def url():
     global target
-    while(True):
+    while True:
         url = input("url> ")
         if url.lower() == "exit":
             print(target)
@@ -204,7 +204,7 @@ def url():
 
 # command line
 def cli():
-    while (True):
+    while True:
         user_input = input("> ")
 
         if user_input == "help":
@@ -212,8 +212,8 @@ def cli():
         elif user_input == "exit":
             print("Bye! :)")
             quit()
-        elif user_input == "menu":
-            menu()
+        elif user_input == "tools":
+            tools()
         elif user_input == "url":
             url()
         elif user_input == "run":
