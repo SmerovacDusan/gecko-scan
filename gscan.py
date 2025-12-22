@@ -217,15 +217,15 @@ def cli():
         elif user_input == "url":
             url()
         elif user_input == "run":
-            tools = [virus_total, whois, dns_dumpster, where_goes]
+            selected_tools = [virus_total, whois, dns_dumpster, where_goes]
             if (target == ""):
                 print("URL not selected!")
                 continue
-            if not any(tools):
+            if not any(selected_tools):
                 print("You must choose at least one tool!")
                 continue
     
-            analysis_m.analysis(target, tools)
+            analysis_m.analysis(target, selected_tools)
         else:
             print("\033[91mUnrecognized command\033[0m")
 
