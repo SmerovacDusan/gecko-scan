@@ -5,9 +5,13 @@ import db_record_m
 
 # global variables
 target = ""
+connection_virus_total = False
+connection_whois = False
+connection_dnsdumpster = False
+connection_where_goes = False
 virus_total = False
 whois = False
-dns_dumpster = False
+dnsdumpster = False
 where_goes = False
 database_record = True
 
@@ -55,6 +59,15 @@ def ping(host, port=80, timeout=2):
 
 # testing sites connection using function ping()
 def sites_connection():
+    global connection_virus_total, connection_whois, connection_dnsdumpster, connection_where_goes
+    def check_whois_server(host='whois.verisign-grs.com', port=43, timeout=3):
+        try:
+            s = socket.create_connection((host, port), timeout=timeout)
+            s.close()
+            return True
+        except Exception:
+            return False
+    
     print("\n----SITES CONNECTION TEST----\n")
     print("+===========================+")
     print("| Site               Status |")
@@ -63,21 +76,25 @@ def sites_connection():
     # coloring OK and ERROR using ANSI escape code
     if ping('virustotal.com'):
         print("| VirusTotal         \033[92mOK\033[0m     |")
+        connection_virus_total = True
     else:
-        print("| VirusTotal        \033[91mERROR\033[0m   |")
+        print("| VirusTotal         \033[91mERROR\033[0m  |")
 
-    if ping('whois.com'):
+    if check_whois_server():
         print("| Whois              \033[92mOK\033[0m     |")
+        connection_whois = True
     else:
         print("| Whois              \033[91mERROR\033[0m  |")
     
     if ping('dnsdumpster.com'):
         print("| DNSDumpster        \033[92mOK\033[0m     |")
+        connection_dnsdumpster = True
     else:
         print("| DNSDumpster        \033[91mERROR\033[0m  |")
 
     if ping('wheregoes.com'):
         print("| WhereGoes          \033[92mOK\033[0m     |")
+        connection_where_goes = True
     else:
         print("| WhereGoes          \033[91mERROR\033[0m  |")
     
@@ -96,7 +113,7 @@ def commands():
 
 # tools screen
 def tools():
-    global virus_total, whois, dns_dumpster, where_goes
+    global virus_total, whois, dnsdumpster, where_goes
     print("TOOLS")
     print("(Choose one or more sites. Use command exit to leave the tools screen)")
     print("+======================================================================================+")
@@ -124,68 +141,80 @@ def tools():
         else:
             # VirusTotal select/unselect
             if choice == "1":
-                if virus_total:
-                    while True:
-                        vt_unselect = input("\033[93m[?] VirusTotal already selected! Do you want to unselect it? [y/n]> \033[0m")
-                        if vt_unselect.lower() == "y":
-                            virus_total = False
-                            print("\033[92m[+] VirusTotal unselected!\033[0m")
-                            break
-                        elif vt_unselect == "n" or vt_unselect == "N":
-                            print("\033[92m[+] VirusTotal remains selected!\033[0m")
-                            break
-                        else:
-                            print("\033[91m[!] Unrecognized command\033[0m")
+                if connection_virus_total:
+                    if virus_total:
+                        while True:
+                            vt_unselect = input("\033[93m[?] VirusTotal already selected! Do you want to unselect it? [y/n]> \033[0m")
+                            if vt_unselect.lower() == "y":
+                                virus_total = False
+                                print("\033[92m[+] VirusTotal unselected!\033[0m")
+                                break
+                            elif vt_unselect == "n" or vt_unselect == "N":
+                                print("\033[92m[+] VirusTotal remains selected!\033[0m")
+                                break
+                            else:
+                                print("\033[91m[!] Unrecognized command\033[0m")
+                    else:
+                        virus_total = True
                 else:
-                    virus_total = True
+                    print("\033[91m[!] There is no connection to Virus Total! Check your Internet connection or wait for a while and run Gecko Scan again.\033[0m")
             # Whois select/unselect
             elif choice == "2":
-                if whois:
-                    while True:
-                        whois_unselect = input("\033[93m[?] Whois already selected! Do you want to unselect it? [y/n]> \033[0m")
-                        if whois_unselect.lower() == "y":
-                            whois = False
-                            print("\033[92m[+] Whois unselected!\033[0m")
-                            break
-                        elif whois_unselect.lower() == "n":
-                            print("\033[92m[+] Whois remains selected!\033[0m")
-                            break
-                        else:
-                            print("\033[91m[!] Unrecognized command\033[0m")
+                if connection_whois:
+                    if whois:
+                        while True:
+                            whois_unselect = input("\033[93m[?] Whois already selected! Do you want to unselect it? [y/n]> \033[0m")
+                            if whois_unselect.lower() == "y":
+                                whois = False
+                                print("\033[92m[+] Whois unselected!\033[0m")
+                                break
+                            elif whois_unselect.lower() == "n":
+                                print("\033[92m[+] Whois remains selected!\033[0m")
+                                break
+                            else:
+                                print("\033[91m[!] Unrecognized command\033[0m")
+                    else:
+                        whois = True
                 else:
-                    whois = True
+                    print("\033[91m[!] There is no connection to Whois! Check your Internet connection or wait for a while and run Gecko Scan again.\033[0m")
             # DNSDumpster select/unselect
             elif choice == "3":
-                if dns_dumpster:
-                    while True:
-                        dns_unselect = input("\033[93m[?] DNSDumpster already selected! Do you want to unselect it? [y/n]> \033[0m")
-                        if dns_unselect.lower() == "y":
-                            dns_dumpster = False
-                            print("\033[92m[+] DNSDumpster unselected!\033[0m")
-                            break
-                        elif dns_unselect.lower() == "n":
-                            print("\033[92m[+] DNSDumpster remains selected!\033[0m")
-                            break
-                        else:
-                            print("\033[91m[!] Unrecognized command\033[0m")
+                if connection_dnsdumpster:
+                    if dnsdumpster:
+                        while True:
+                            dns_unselect = input("\033[93m[?] DNSDumpster already selected! Do you want to unselect it? [y/n]> \033[0m")
+                            if dns_unselect.lower() == "y":
+                                dnsdumpster = False
+                                print("\033[92m[+] DNSDumpster unselected!\033[0m")
+                                break
+                            elif dns_unselect.lower() == "n":
+                                print("\033[92m[+] DNSDumpster remains selected!\033[0m")
+                                break
+                            else:
+                                print("\033[91m[!] Unrecognized command\033[0m")
+                    else:
+                        dnsdumpster = True
                 else:
-                    dns_dumpster = True
+                    print("\033[91m[!] There is no connection to DNSDumpster! Check your Internet connection or wait for a while and run Gecko Scan again.\033[0m")
             # WhereGoes select/unselect
             elif choice == "4":
-                if where_goes:
-                    while True:
-                        wg_unselect = input("\033[93m[?] WhereGoes already selected! Do you want to unselect it? [y/n]> \033[0m")
-                        if wg_unselect.lower() == "y":
-                            whois = False
-                            print("\033[92m[+] WhereGoes unselected!\033[0m")
-                            break
-                        elif wg_unselect.lower() == "n":
-                            print("\033[92m[+] WhereGoes remains selected!\033[0m")
-                            break
-                        else:
-                            print("\033[91m[!] Unrecognized command\033[0m")
+                if connection_where_goes:
+                    if where_goes:
+                        while True:
+                            wg_unselect = input("\033[93m[?] WhereGoes already selected! Do you want to unselect it? [y/n]> \033[0m")
+                            if wg_unselect.lower() == "y":
+                                whois = False
+                                print("\033[92m[+] WhereGoes unselected!\033[0m")
+                                break
+                            elif wg_unselect.lower() == "n":
+                                print("\033[92m[+] WhereGoes remains selected!\033[0m")
+                                break
+                            else:
+                                print("\033[91m[!] Unrecognized command\033[0m")
+                    else:
+                        where_goes = True
                 else:
-                    where_goes = True
+                    print("\033[91m[!] There is no connection to Where Goes! Check your Internet connection or wait for a while and run Gecko Scan again.\033[0m")
 
 # url command line
 # input check (enter), ask when rewriting
@@ -224,7 +253,7 @@ def cli():
             database_record = False
             print("\033[92m[+] Adding records to the database disabled\033[0m")
         elif user_input == "run":
-            selected_tools = [virus_total, whois, dns_dumpster, where_goes]
+            selected_tools = [virus_total, whois, dnsdumpster, where_goes]
             if target == "":
                 print("\033[91m[!] URL not selected!\033[0m")
                 continue
