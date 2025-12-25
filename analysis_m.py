@@ -143,11 +143,14 @@ def parse_dnsdumpster_table(raw_rows):
     
 def dnsdumpster_analysis(target):
     with sync_playwright() as p:
+        target_sanitized = target.replace("http://", "")
+        target_sanitized = target.replace("https://", "")
+        target_sanitized = target_sanitized.split("/")[0]
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
         page.goto("https://dnsdumpster.com/")
-        page.fill("input#target", target)
+        page.fill("input#target", target_sanitized)
         page.click('button:has-text("Start Test!")')
         page.wait_for_timeout(6000)
 

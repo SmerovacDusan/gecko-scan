@@ -142,6 +142,7 @@ def generate_report(target, tools, virus_total, whois, dnsdumpster, where_goes):
     file_name = f"{dt_string}_{target}"
     file_name = file_name.replace("http://", "")
     file_name = file_name.replace("https://", "")
+    file_name = file_name.replace("/", "-")
     file_name = file_name.replace(".", "-")
 
     output_dir = Path("reports")
