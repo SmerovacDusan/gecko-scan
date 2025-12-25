@@ -1,6 +1,7 @@
 import socket
 from os import system, name
 import analysis_m
+import db_record_m
 
 # global variables
 target = ""
@@ -8,6 +9,7 @@ virus_total = False
 whois = False
 dns_dumpster = False
 where_goes = False
+database_record = True
 
 
 # functions
@@ -85,11 +87,12 @@ def sites_connection():
 # help/command screen
 def commands():
     print("\nPOSSIBLE COMMANDS:")
-    print("tools -display tools")
-    print("url  -set target")
-    print("run  -run the URL analysis with selected tools")
-    print("exit -exit from the app")
-    print("help -display this message\n")
+    print("tools        Display tools")
+    print("url          Set target")
+    print("db [on|off]  Turn on/off adding records to the database (default on)")
+    print("run          Run the URL analysis with selected tools")
+    print("exit         Exit from the app")
+    print("help         Display this message\n")
 
 # tools screen
 def tools():
@@ -122,69 +125,65 @@ def tools():
             # VirusTotal select/unselect
             if choice == "1":
                 if virus_total:
-                    print("VirusTotal already selected!")
                     while True:
-                        vt_unselect = input("Do you want to unselect it? [y/n]> ")
+                        vt_unselect = input("\033[93m[?] VirusTotal already selected! Do you want to unselect it? [y/n]> \033[0m")
                         if vt_unselect.lower() == "y":
                             virus_total = False
-                            print("VirusTotal unselected!")
+                            print("\033[92m[+] VirusTotal unselected!\033[0m")
                             break
                         elif vt_unselect == "n" or vt_unselect == "N":
-                            print("VirusTotal remains selected!")
+                            print("\033[92m[+] VirusTotal remains selected!\033[0m")
                             break
                         else:
-                            print("\033[91mUnrecognized command\033[0m")
+                            print("\033[91m[!] Unrecognized command\033[0m")
                 else:
                     virus_total = True
             # Whois select/unselect
             elif choice == "2":
                 if whois:
-                    print("Whois already selected!")
                     while True:
-                        whois_unselect = input("Do you want to unselect it? [y/n]> ")
+                        whois_unselect = input("\033[93m[?] Whois already selected! Do you want to unselect it? [y/n]> \033[0m")
                         if whois_unselect.lower() == "y":
                             whois = False
-                            print("Whois unselected!")
+                            print("\033[92m[+] Whois unselected!\033[0m")
                             break
                         elif whois_unselect.lower() == "n":
-                            print("Whois remains selected!")
+                            print("\033[92m[+] Whois remains selected!\033[0m")
                             break
                         else:
-                            print("\033[91mUnrecognized command\033[0m")
+                            print("\033[91m[!] Unrecognized command\033[0m")
                 else:
                     whois = True
             # DNSDumpster select/unselect
             elif choice == "3":
                 if dns_dumpster:
-                    print("DNSDumpster already selected!")
                     while True:
-                        dns_unselect = input("Do you want to unselect it? [y/n]> ")
+                        dns_unselect = input("\033[93m[?] DNSDumpster already selected! Do you want to unselect it? [y/n]> \033[0m")
                         if dns_unselect.lower() == "y":
                             dns_dumpster = False
-                            print("DNSDumpster unselected!")
+                            print("\033[92m[+] DNSDumpster unselected!\033[0m")
                             break
                         elif dns_unselect.lower() == "n":
-                            print("DNSDumpster remains selected!")
+                            print("\033[92m[+] DNSDumpster remains selected!\033[0m")
                             break
                         else:
-                            print("\033[91mUnrecognized command\033[0m")
+                            print("\033[91m[!] Unrecognized command\033[0m")
                 else:
                     dns_dumpster = True
             # WhereGoes select/unselect
             elif choice == "4":
                 if where_goes:
-                    print("WhereGoes already selected!")
                     while True:
-                        wg_unselect = input("Do you want to unselect it? [y/n]> ")
+                        wg_unselect = input("\033[93m[?] WhereGoes already selected! Do you want to unselect it? [y/n]> \033[0m")
                         if wg_unselect.lower() == "y":
                             whois = False
-                            print("WhereGoes unselected!")
+                            print("\033[92m[+] WhereGoes unselected!\033[0m")
                             break
                         elif wg_unselect.lower() == "n":
-                            print("WhereGoes remains selected!")
+                            print("\033[92m[+] WhereGoes remains selected!\033[0m")
                             break
                         else:
-                            print("\033[91mUnrecognized command\033[0m")
+                            print("\033[91m[!] Unrecognized command\033[0m")
                 else:
                     where_goes = True
 
@@ -199,11 +198,13 @@ def url():
             break
         else:
             target = url.lower()
-            print("Using: " + target)
+            print(f"\033[92m[+] Using: {target}\033[0m")
             break
 
 # command line
 def cli():
+    global database_record
+
     while True:
         user_input = input("> ")
 
@@ -216,18 +217,26 @@ def cli():
             tools()
         elif user_input == "url":
             url()
+        elif user_input == "db on":
+            database_record = True
+            print("\033[92m[+] Adding records to the database enabled\033[0m")
+        elif user_input == "db off":
+            database_record = False
+            print("\033[92m[+] Adding records to the database disabled\033[0m")
         elif user_input == "run":
             selected_tools = [virus_total, whois, dns_dumpster, where_goes]
-            if (target == ""):
-                print("URL not selected!")
+            if target == "":
+                print("\033[91m[!] URL not selected!\033[0m")
                 continue
-            if not any(selected_tools):
-                print("You must choose at least one tool!")
+            if not any (selected_tools):
+                print("\033[91m[!] You must choose at least one tool!\033[0m")
                 continue
     
             analysis_m.analysis(target, selected_tools)
+            if database_record:
+                db_record_m.database_record(target)
         else:
-            print("\033[91mUnrecognized command\033[0m")
+            print("\033[91m[!] Unrecognized command\033[0m")
 
 
 # program
