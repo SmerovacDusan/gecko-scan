@@ -107,10 +107,10 @@ reports/25-12-2025_15-45-12_https-example-com.pdf
 
 ## 📝 Example Workflow
 
-```diff
+```
 > url
 url> https://example.com
-+ [+] Using: https://example.com
+​[+] Using: https://example.com
 
 > tools
 tools> 1
@@ -118,13 +118,13 @@ tools> 2
 tools> exit
 
 > run
-+ [*] Analysis started
-+ [+] VirusTotal: OK
-+ [+] Whois: Retrieved domain info
-+ [+] Analysis done
+[+] Analysis started
+[+] VirusTotal: OK
+[+] Whois: Retrieved domain info
+[+] Analysis done
 
-+ [+] Report saved as 25-12-2025_15-45-12_https-example-com.pdf
-+ [+] Record added to the database
+[+] Report saved as 25-12-2025_15-45-12_https-example-com.pdf
+[+] Record added to the database
 ```
 
 ---
