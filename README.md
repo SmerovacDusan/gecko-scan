@@ -46,15 +46,15 @@ python3 gscan.py
 
 **CLI Commands**
 
-| Command     | Description                                |
-| ----------- | ------------------------------------------ |
-| `help`      | Show available commands                    |
-| `tools`     | Select one or more tools to use            |
-| `url`       | Set the target URL                         |
-| `db on`     | Enable storing results in the database     |
-| `db off`    | Disable storing results in the database    |
-| `run`       | Run the analysis using selected tools      |
-| `exit`      | Exit the program                           |
+| Command     | Description                                                                                     |
+| ----------- | ----------------------------------------------------------------------------------------------- |
+| `help`      | Show available commands                                                                         |
+| `tools`     | Select one or more tools to use. To unselect a tool, type its number and confirm when prompted  |
+| `url`       | Set the target URL                                                                              |
+| `db on`     | Enable storing results in the database                                                          |
+| `db off`    | Disable storing results in the database                                                         |
+| `run`       | Run the analysis using selected tools                                                           |
+| `exit`      | Exit the program                                                                                |
 
 ---
 
@@ -103,6 +103,8 @@ reports/25-12-2025_15-45-12_https-example-com.pdf
 - Enable/disable database recording using `db on` / `db off` commands
 - Each scan creates a new record
 
+![db diagram](./assets/db_diagram.png)
+
 ---
 
 ## 📝 Example Workflow
@@ -119,11 +121,8 @@ tools> exit
 
 > run
 [+] Analysis started
-[+] VirusTotal: OK
-[+] Whois: Retrieved domain info
-[+] Analysis done
-
 [+] Report saved as 25-12-2025_15-45-12_https-example-com.pdf
+[+] Analysis done
 [+] Record added to the database
 ```
 
