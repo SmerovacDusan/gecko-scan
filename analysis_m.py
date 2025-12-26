@@ -188,7 +188,7 @@ def dnsdumpster_analysis(target):
     }
 
 def analysis(target, tools):
-    print("\033[92m[*] Analysis started\033[0m")
+    print("\033[92m[+] Analysis started\033[0m")
 
     virus_total_info = virus_total_analysis(target) if tools[0] else None
     whois_info = whois_analysis(target) if tools[1] else None
