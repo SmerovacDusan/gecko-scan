@@ -69,7 +69,7 @@ def generate_report(target, tools, virus_total, whois, dnsdumpster, where_goes):
                     result = det.get("result", "Unknown")
                     mc(pdf, f" - {vendor}: {result}")
                 else:
-                    mc(pdf, f" - {str(det)}")  # pokud je to seznam nebo řetězec
+                    mc(pdf, f" - {str(det)}")
         else:
             mc(pdf, "No detections found")
 
@@ -108,7 +108,6 @@ def generate_report(target, tools, virus_total, whois, dnsdumpster, where_goes):
             write_dns_records(pdf, "MX RECORDS", dnsdumpster.get("mx_records"))
             write_dns_records(pdf, "NS RECORDS", dnsdumpster.get("ns_records"))
 
-            # TXT Records – každý záznam na jeden řádek
             pdf.set_font("Helvetica", "B", 13)
             pdf.cell(0, 5, txt="TXT RECORDS", ln=True)
 
@@ -145,7 +144,7 @@ def generate_report(target, tools, virus_total, whois, dnsdumpster, where_goes):
     file_name = file_name.replace("/", "-")
     file_name = file_name.replace(".", "-")
 
-    output_dir = Path("reports")
+    output_dir = Path("reports/pdf")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     pdf.output(output_dir / f"{file_name}.pdf")

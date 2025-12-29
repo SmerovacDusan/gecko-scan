@@ -3,6 +3,7 @@ import requests
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import pdf_report_generator_m
+import html_report_generator_m
 
 # VIRUS TOTAL
 def virus_total_analysis(target):
@@ -187,7 +188,7 @@ def dnsdumpster_analysis(target):
         "txt_records": txt_records
     }
 
-def analysis(target, tools):
+def analysis(target, tools, pdf_report, html_report):
     print("\033[92m[+] Analysis started\033[0m")
 
     virus_total_info = virus_total_analysis(target) if tools[0] else None
@@ -195,13 +196,24 @@ def analysis(target, tools):
     dnsdumpster_info = dnsdumpster_analysis(target) if tools[2] else None
     where_goes_info = where_goes_analysis(target) if tools[3] else None
 
-    pdf_report_generator_m.generate_report(
-        target,
-        tools,
-        virus_total_info,
-        whois_info,
-        dnsdumpster_info,
-        where_goes_info
-    )
+    if pdf_report:
+        pdf_report_generator_m.generate_report(
+            target,
+            tools,
+            virus_total_info,
+            whois_info,
+            dnsdumpster_info,
+            where_goes_info
+        )
+    
+    if html_report:
+        html_report_generator_m.generate_report(
+            target,
+            tools,
+            virus_total_info,
+            whois_info,
+            dnsdumpster_info,
+            where_goes_info
+        )
 
     print("\033[92m[+] Analysis done\033[0m")

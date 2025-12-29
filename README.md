@@ -14,7 +14,7 @@ It supports multiple online services, generates PDF reports, and can save result
   - WhereGoes
 - Select which tools to use via an interactive CLI
 - Store scan results in a local SQLite database (optional)
-- Generate detailed PDF reports for each scan
+- Generate detailed PDF and HTML reports for each scan
 - Color-coded output for easy readability (green = OK, red = ERROR)
 
 ---
@@ -46,21 +46,23 @@ python3 gscan.py
 
 **CLI Commands**
 
-| Command     | Description                                                                                     |
-| ----------- | ----------------------------------------------------------------------------------------------- |
-| `help`      | Show available commands                                                                         |
-| `tools`     | Select one or more tools to use. To unselect a tool, type its number and confirm when prompted  |
-| `url`       | Set the target URL                                                                              |
-| `db on`     | Enable storing results in the database                                                          |
-| `db off`    | Disable storing results in the database                                                         |
-| `run`       | Run the analysis using selected tools                                                           |
-| `exit`      | Exit the program                                                                                |
+| Command       | Description                                                                                     |
+| -----------   | ----------------------------------------------------------------------------------------------- |
+| `help`        | Show available commands                                                                         |
+| `tools`       | Select one or more tools to use. To unselect a tool, type its number and confirm when prompted  |
+| `url`         | Set the target URL                                                                              |
+| `db on`       | Enable storing results in the database                                                          |
+| `db off`      | Disable storing results in the database                                                         |
+| `report pdf`  | Select PDF report. To unselect, type this command again                                         |
+| `report html` | Select HTML report. To unselect, type this command again                                        |
+| `run`         | Run the analysis using selected tools                                                           |
+| `exit`        | Exit the program                                                                                |
 
 ---
 
 ## 🔧 Supported Tools / Analyses
 1. **VirusTotal**
-    - Checks URL for malware
+    - Checks URL for malware and other threats
     - Provides detection score and engine-specific results
 
 2. **Whois**
@@ -77,18 +79,24 @@ python3 gscan.py
 
 ---
 
-## 📄 PDF Reports
+## 📄 Reports
 
 - Generated automatically after each analysis
 - Contains results for all selected tools
-- Stored in `reports/` folder
+- Two report types - PDF and HTML
+- Select/unselect report type `report pdf` / `report html`
 - Filenames include the URL and timestamp in format `dd-mm-yyyy_hh-mm-ss`
+- Stored in `reports/pdf` and `reports/html`
 
-**Example:**
+**Reports directory structure:**
 
-```
-reports/25-12-2025_15-45-12_https-example-com.pdf
-```
+<pre>
+reports/
+├── html/
+│    └── 25-12-2025_15-45-12_https-example-com.html
+└── pdf
+        └── 25-12-2025_15-45-12_https-example-com.pdf
+</pre>
 
 ---
 
@@ -119,9 +127,12 @@ tools> 1
 tools> 2
 tools> exit
 
+> report html
+
 > run
 [+] Analysis started
 [+] Report saved as 25-12-2025_15-45-12_https-example-com.pdf
+[+] Report saved as 25-12-2025_15-45-12_https-example-com.html
 [+] Analysis done
 [+] Record added to the database
 ```

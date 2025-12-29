@@ -9,11 +9,15 @@ connection_virus_total = False
 connection_whois = False
 connection_dnsdumpster = False
 connection_where_goes = False
+
 virus_total = False
 whois = False
 dnsdumpster = False
 where_goes = False
 database_record = True
+
+pdf_report = True
+html_report = False
 
 
 # functions
@@ -104,12 +108,13 @@ def sites_connection():
 # help/command screen
 def commands():
     print("\nPOSSIBLE COMMANDS:")
-    print("tools        Display tools")
-    print("url          Set target")
-    print("db [on|off]  Turn on/off adding records to the database (default on)")
-    print("run          Run the URL analysis with selected tools")
-    print("exit         Exit from the app")
-    print("help         Display this message\n")
+    print("tools               Display tools")
+    print("url                 Set target")
+    print("db [on|off]         Turn on/off adding records to the database (default on)")
+    print("report [pdf|html]   Select report type (default PDF)")
+    print("run                 Run the URL analysis with selected tools")
+    print("exit                Exit from the app")
+    print("help                Display this message\n")
 
 # tools screen
 def tools():
@@ -232,7 +237,7 @@ def url():
 
 # command line
 def cli():
-    global database_record
+    global database_record, pdf_report, html_report
 
     while True:
         user_input = input("> ")
@@ -252,6 +257,18 @@ def cli():
         elif user_input == "db off":
             database_record = False
             print("\033[92m[+] Adding records to the database disabled\033[0m")
+        elif user_input == "report pdf":
+            if pdf_report:
+                pdf_report = False
+                print("\033[92m[+] PDF report unselected!\033[0m")
+            else:
+                pdf_report = True
+        elif user_input == "report html":
+            if html_report:
+                html_report = False
+                print("\033[92m[+] HTML report unselected!\033[0m")
+            else:
+                html_report = True
         elif user_input == "run":
             selected_tools = [virus_total, whois, dnsdumpster, where_goes]
             if target == "":
@@ -260,8 +277,11 @@ def cli():
             if not any (selected_tools):
                 print("\033[91m[!] You must choose at least one tool!\033[0m")
                 continue
+            if not pdf_report and not html_report:
+                print("\033[91m[!] You must choose at least one report type!\033[0m")
+                continue
     
-            analysis_m.analysis(target, selected_tools)
+            analysis_m.analysis(target, selected_tools, pdf_report, html_report)
             if database_record:
                 db_record_m.database_record(target)
         else:
