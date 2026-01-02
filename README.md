@@ -1,6 +1,6 @@
 # 🦎 Gecko Scan
 
-**Gecko Scan** is a Python CLI tool for analyzing URLs and performing security checks on websites.  
+**Gecko Scan** is a Python CLI and GUI tool for analyzing URLs and performing security checks on websites.  
 It supports multiple online services, generates PDF reports, and can save results into a local SQLite database.
 
 ---
@@ -12,7 +12,7 @@ It supports multiple online services, generates PDF reports, and can save result
   - Whois
   - DNSDumpster
   - WhereGoes
-- Select which tools to use via an interactive CLI
+- Select which tools to use via an interactive CLI or easy-to-use GUI
 - Store scan results in a local SQLite database (optional)
 - Generate detailed PDF and HTML reports for each scan
 - Color-coded output for easy readability (green = OK, red = ERROR)
@@ -41,7 +41,13 @@ pip install -r requirements.txt
 
 Start the program:
 ```bash
-python3 gscan.py
+# CLI
+python3 gscan.py        # Linux
+python gscan.py         # Windows
+
+# GUI
+python3 gscan_gui.py    # Linux
+python gscan_gui.py     # Windows
 ```
 
 **CLI Commands**
@@ -84,7 +90,7 @@ python3 gscan.py
 - Generated automatically after each analysis
 - Contains results for all selected tools
 - Two report types - PDF and HTML
-- Select/unselect report type `report pdf` / `report html`
+- To select/unselect report type `report pdf` / `report html`
 - Filenames include the URL and timestamp in format `dd-mm-yyyy_hh-mm-ss`
 - Stored in `reports/pdf` and `reports/html`
 
@@ -93,9 +99,9 @@ python3 gscan.py
 <pre>
 reports/
 ├── html/
-│    └── 25-12-2025_15-45-12_https-example-com.html
-└── pdf
-        └── 25-12-2025_15-45-12_https-example-com.pdf
+│   └── 25-12-2025_15-45-12_https-example-com.html
+└── pdf/
+    └── 25-12-2025_15-45-12_https-example-com.pdf
 </pre>
 
 ---

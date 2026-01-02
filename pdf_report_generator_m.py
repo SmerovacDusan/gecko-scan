@@ -148,4 +148,4 @@ def generate_report(target, tools, virus_total, whois, dnsdumpster, where_goes):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     pdf.output(output_dir / f"{file_name}.pdf")
-    print(f"\033[92m[+] Report saved as {file_name}.pdf\033[0m")
+    print(f"\033[92m[+] PDF report saved as {file_name}.pdf\033[0m")
