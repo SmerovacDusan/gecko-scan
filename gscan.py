@@ -116,6 +116,26 @@ def commands():
     print("exit                Exit from the app")
     print("help                Display this message\n")
 
+def select_unselect(tool_name: str, selected: bool, connection: bool) -> bool:
+    if not connection:
+        print(f"\033[91m[!] There is no connection to {tool_name}! Check your Internet connection or wait for a while and run Gecko Scan again.\033[0m")
+
+    if selected:
+        while True:
+            answer = input(f"\033[93m[?] {tool_name} already selected! Do you want to unselect it? [y/n]> \033[0m").lower()
+
+            if answer == "y":
+                print(f"\033[92m[+] {tool_name} unselected!\033[0m")
+                return False
+            elif answer == "n":
+                print(f"\033[92m[+] {tool_name} remains selected!\033[0m")
+                return True
+            else:
+                print("\033[91m[!] Unrecognized command\033[0m")
+    else:
+        print(f"\033[92m[+] {tool_name} selected!\033[0m")
+        return True
+
 # tools screen
 def tools():
     global virus_total, whois, dnsdumpster, where_goes
@@ -144,82 +164,16 @@ def tools():
         if choice == "exit":
             break
         else:
-            # VirusTotal select/unselect
             if choice == "1":
-                if connection_virus_total:
-                    if virus_total:
-                        while True:
-                            vt_unselect = input("\033[93m[?] VirusTotal already selected! Do you want to unselect it? [y/n]> \033[0m")
-                            if vt_unselect.lower() == "y":
-                                virus_total = False
-                                print("\033[92m[+] VirusTotal unselected!\033[0m")
-                                break
-                            elif vt_unselect == "n" or vt_unselect == "N":
-                                print("\033[92m[+] VirusTotal remains selected!\033[0m")
-                                break
-                            else:
-                                print("\033[91m[!] Unrecognized command\033[0m")
-                    else:
-                        virus_total = True
-                else:
-                    print("\033[91m[!] There is no connection to Virus Total! Check your Internet connection or wait for a while and run Gecko Scan again.\033[0m")
-            # Whois select/unselect
+                virus_total = select_unselect("VirusTotal", virus_total, connection_virus_total)
             elif choice == "2":
-                if connection_whois:
-                    if whois:
-                        while True:
-                            whois_unselect = input("\033[93m[?] Whois already selected! Do you want to unselect it? [y/n]> \033[0m")
-                            if whois_unselect.lower() == "y":
-                                whois = False
-                                print("\033[92m[+] Whois unselected!\033[0m")
-                                break
-                            elif whois_unselect.lower() == "n":
-                                print("\033[92m[+] Whois remains selected!\033[0m")
-                                break
-                            else:
-                                print("\033[91m[!] Unrecognized command\033[0m")
-                    else:
-                        whois = True
-                else:
-                    print("\033[91m[!] There is no connection to Whois! Check your Internet connection or wait for a while and run Gecko Scan again.\033[0m")
-            # DNSDumpster select/unselect
+                whois = select_unselect("Whois", whois, connection_whois)
             elif choice == "3":
-                if connection_dnsdumpster:
-                    if dnsdumpster:
-                        while True:
-                            dns_unselect = input("\033[93m[?] DNSDumpster already selected! Do you want to unselect it? [y/n]> \033[0m")
-                            if dns_unselect.lower() == "y":
-                                dnsdumpster = False
-                                print("\033[92m[+] DNSDumpster unselected!\033[0m")
-                                break
-                            elif dns_unselect.lower() == "n":
-                                print("\033[92m[+] DNSDumpster remains selected!\033[0m")
-                                break
-                            else:
-                                print("\033[91m[!] Unrecognized command\033[0m")
-                    else:
-                        dnsdumpster = True
-                else:
-                    print("\033[91m[!] There is no connection to DNSDumpster! Check your Internet connection or wait for a while and run Gecko Scan again.\033[0m")
-            # WhereGoes select/unselect
+                dnsdumpster = select_unselect("DNSDumpster", dnsdumpster, connection_dnsdumpster)
             elif choice == "4":
-                if connection_where_goes:
-                    if where_goes:
-                        while True:
-                            wg_unselect = input("\033[93m[?] WhereGoes already selected! Do you want to unselect it? [y/n]> \033[0m")
-                            if wg_unselect.lower() == "y":
-                                whois = False
-                                print("\033[92m[+] WhereGoes unselected!\033[0m")
-                                break
-                            elif wg_unselect.lower() == "n":
-                                print("\033[92m[+] WhereGoes remains selected!\033[0m")
-                                break
-                            else:
-                                print("\033[91m[!] Unrecognized command\033[0m")
-                    else:
-                        where_goes = True
-                else:
-                    print("\033[91m[!] There is no connection to Where Goes! Check your Internet connection or wait for a while and run Gecko Scan again.\033[0m")
+                where_goes = select_unselect("WhereGoes", where_goes, connection_where_goes)
+            else:
+                print("\033[91m[!] You must choose number between 1 and 4!\033[0m")
 
 # url command line
 # input check (enter), ask when rewriting
@@ -263,12 +217,14 @@ def cli():
                 print("\033[92m[+] PDF report unselected!\033[0m")
             else:
                 pdf_report = True
+                print("\033[92m[+] PDF report selected!\033[0m")
         elif user_input == "report html":
             if html_report:
                 html_report = False
                 print("\033[92m[+] HTML report unselected!\033[0m")
             else:
                 html_report = True
+                print("\033[92m[+] HTML report unselected!\033[0m")
         elif user_input == "run":
             selected_tools = [virus_total, whois, dnsdumpster, where_goes]
             if target == "":
