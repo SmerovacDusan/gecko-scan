@@ -224,7 +224,7 @@ def cli():
                 print("\033[92m[+] HTML report unselected!\033[0m")
             else:
                 html_report = True
-                print("\033[92m[+] HTML report unselected!\033[0m")
+                print("\033[92m[+] HTML report selected!\033[0m")
         elif user_input == "run":
             selected_tools = [virus_total, whois, dnsdumpster, where_goes]
             if target == "":
