@@ -7,37 +7,41 @@ import html_report_generator_m
 
 # VIRUS TOTAL
 def virus_total_analysis(target):
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
 
-        page.goto("https://www.virustotal.com/gui/home/url")
-        page.fill('input#urlSearchInput', target)
-        page.click('button#searchUrlButton')
-        page.wait_for_timeout(6000)
+            page.goto("https://www.virustotal.com/gui/home/url")
+            page.fill('input#urlSearchInput', target)
+            page.click('button#searchUrlButton')
+            page.wait_for_timeout(6000)
 
-        score = page.inner_text("div#positives") + page.inner_text("div#positives + div").strip()
+            score = page.inner_text("div#positives") + page.inner_text("div#positives + div").strip()
 
-        detections = []
-        for engine in page.query_selector_all("span.engine-name"):
-            engine_id = engine.get_attribute("id")
-            if not engine_id:
-                continue
+            detections = []
+            for engine in page.query_selector_all("span.engine-name"):
+                engine_id = engine.get_attribute("id")
+                if not engine_id:
+                    continue
 
-            result_el = page.query_selector(f"span#{engine_id.replace('engine', 'engine-text')}")
-            if not result_el:
-                continue
+                result_el = page.query_selector(f"span#{engine_id.replace('engine', 'engine-text')}")
+                if not result_el:
+                    continue
 
-            result = result_el.inner_text().strip()
-            if result.lower() not in ["clean", "undetected", "harmless", "unrated"]:
-                detections.append({
-                    "vendor": engine.inner_text().strip(),
-                    "result": result
-                })
+                result = result_el.inner_text().strip()
+                if result.lower() not in ["clean", "undetected", "harmless", "unrated"]:
+                    detections.append({
+                        "vendor": engine.inner_text().strip(),
+                        "result": result
+                    })
 
-        browser.close()
+            browser.close()
 
-        return {"score": score, "detections": detections}
+            return {"score": score, "detections": detections}
+    except Exception as e:
+        print(f"\033[91m[!] Failed to retrieve VirusTotal results: {e}\033[0m")
+        return {"score": None, "detections": []}
 
 # WHOIS
 def whois_analysis(target):
@@ -58,46 +62,54 @@ def whois_analysis(target):
             "name_servers": info.name_servers,
         }
 
-    except Exception:
-        return "NOT FOUND"
-    except Exception:
-        return "NOT FOUND"
+    except Exception as e:
+        print(f"\033[91m[!] Whois lookup failed: {e}\033[0m")
+        return None
 
 # WHERE GOES
 def where_goes_analysis(target):
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
 
-        page.goto("https://wheregoes.com/")
+            page.goto("https://wheregoes.com/")
 
-        #agree_btn = page.locator('button:has-text("Agree")')
-        #if agree_btn.count() > 0:
-        #    agree_btn.first.click()
+            #agree_btn = page.locator('button:has-text("Agree")')
+            #if agree_btn.count() > 0:
+            #    agree_btn.first.click()
 
-        page.fill('input#url', target)
-        page.wait_for_timeout(5000)
-        page.locator('#form_button').click(force=True)
-        page.wait_for_timeout(5000)
+            page.fill('input#url', target)
+            page.wait_for_selector('#form_button')
+            page.locator('#form_button').click(force=True)
+            page.wait_for_timeout(5000)
 
-        result_url = page.url
-        browser.close()
+            result_url = page.url
+            browser.close()
+    except Exception as e:
+        print(f"\033[91m[!] Failed to load or interact with wheregoes.com: {e}\033[0m")
+        return []
+        
 
-    soup = BeautifulSoup(requests.get(result_url).content, "html.parser")
+    try:
+        soup = BeautifulSoup(requests.get(result_url).content, "html.parser")
 
-    where_goes_info = []
-    for textarea in soup.find_all("textarea"):
-        text = textarea.get_text().replace("|", "")
-        if "http" in text:
-            start = text.find("http")
-            end = text.find("\n", start)
-            if (end == -1): # end of line if there is no \n
-                end = len(text)
-            link = text[start:end].strip()
-            if link not in where_goes_info:
-                where_goes_info.append(link)
+        where_goes_info = []
+        for textarea in soup.find_all("textarea"):
+            text = textarea.get_text().replace("|", "")
+            if "http" in text:
+                start = text.find("http")
+                end = text.find("\n", start)
+                if (end == -1): # end of line if there is no \n
+                    end = len(text)
+                link = text[start:end].strip()
+                if link not in where_goes_info:
+                    where_goes_info.append(link)
 
-    return where_goes_info
+        return where_goes_info
+    except Exception as e:
+        print(f"\033[91m[!] Failed to parse redirect results page: {e}\033[0m")
+        return []
 
 # DNSDUMPSTER
 def parse_dnsdumpster_table(raw_rows):
@@ -143,50 +155,59 @@ def parse_dnsdumpster_table(raw_rows):
     return records
     
 def dnsdumpster_analysis(target):
-    with sync_playwright() as p:
-        target_sanitized = target.replace("http://", "")
-        target_sanitized = target.replace("https://", "")
-        target_sanitized = target_sanitized.split("/")[0]
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+    try:
+        with sync_playwright() as p:
+            target_sanitized = target.replace("http://", "")
+            target_sanitized = target_sanitized.replace("https://", "")
+            target_sanitized = target_sanitized.split("/")[0]
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
 
-        page.goto("https://dnsdumpster.com/")
-        page.fill("input#target", target_sanitized)
-        page.click('button:has-text("Start Test!")')
-        page.wait_for_timeout(6000)
+            page.goto("https://dnsdumpster.com/")
+            page.fill("input#target", target_sanitized)
+            page.click('button:has-text("Start Test!")')
+            page.wait_for_timeout(6000)
 
-        # Helper - table extraction
-        def get_table_rows(locator):
-            rows = []
-            table = page.locator(locator)
-            tr_elements = table.locator("tr").all()
-            for tr in tr_elements:
-                cells = tr.locator("th, td").all()
-                row = [c.inner_text().strip() for c in cells]
-                rows.append(row)
-            return rows
+            # Helper - table extraction
+            def get_table_rows(locator):
+                rows = []
+                table = page.locator(locator)
+                tr_elements = table.locator("tr").all()
+                for tr in tr_elements:
+                    cells = tr.locator("th, td").all()
+                    row = [c.inner_text().strip() for c in cells]
+                    rows.append(row)
+                return rows
 
-        a_raw = get_table_rows("#a_rec_table")
-        mx_raw = get_table_rows('text=MX Records >> xpath=./following-sibling::table[1]')
-        ns_raw = get_table_rows('text=NS Records >> xpath=./following-sibling::table[1]')
+            a_raw = get_table_rows("#a_rec_table")
+            mx_raw = get_table_rows('text=MX Records >> xpath=./following-sibling::table[1]')
+            ns_raw = get_table_rows('text=NS Records >> xpath=./following-sibling::table[1]')
 
-        txt_cells = page.locator(
-            'text=TXT Records >> xpath=./following-sibling::table[1]//td'
-        ).all()
-        txt_records = [c.inner_text().strip() for c in txt_cells]
+            txt_cells = page.locator(
+                'text=TXT Records >> xpath=./following-sibling::table[1]//td'
+            ).all()
+            txt_records = [c.inner_text().strip() for c in txt_cells]
 
-        browser.close()
-    
-    a_records = parse_dnsdumpster_table(a_raw)
-    mx_records = parse_dnsdumpster_table(mx_raw)
-    ns_records = parse_dnsdumpster_table(ns_raw)
+            browser.close()
+        
+        a_records = parse_dnsdumpster_table(a_raw)
+        mx_records = parse_dnsdumpster_table(mx_raw)
+        ns_records = parse_dnsdumpster_table(ns_raw)
 
-    return {
-        "a_records": a_records,
-        "mx_records": mx_records,
-        "ns_records": ns_records,
-        "txt_records": txt_records
-    }
+        return {
+            "a_records": a_records,
+            "mx_records": mx_records,
+            "ns_records": ns_records,
+            "txt_records": txt_records
+        }
+    except Exception as e:
+        print(f"\033[91m[!] Failed to retrieve DNSDumpster results: {e}\033[0m")
+        return {
+            "a_records": None,
+            "mx_records": None,
+            "ns_records": None,
+            "txt_records": None
+        }
 
 def analysis(target, tools, pdf_report, html_report):
     print("\033[92m[+] Analysis started\033[0m")
@@ -196,24 +217,27 @@ def analysis(target, tools, pdf_report, html_report):
     dnsdumpster_info = dnsdumpster_analysis(target) if tools[2] else None
     where_goes_info = where_goes_analysis(target) if tools[3] else None
 
-    if pdf_report:
-        pdf_report_generator_m.generate_report(
-            target,
-            tools,
-            virus_total_info,
-            whois_info,
-            dnsdumpster_info,
-            where_goes_info
-        )
-    
-    if html_report:
-        html_report_generator_m.generate_report(
-            target,
-            tools,
-            virus_total_info,
-            whois_info,
-            dnsdumpster_info,
-            where_goes_info
-        )
+    try:
+        if pdf_report:
+            pdf_report_generator_m.generate_report(
+                target,
+                tools,
+                virus_total_info,
+                whois_info,
+                dnsdumpster_info,
+                where_goes_info
+            )
+        
+        if html_report:
+            html_report_generator_m.generate_report(
+                target,
+                tools,
+                virus_total_info,
+                whois_info,
+                dnsdumpster_info,
+                where_goes_info
+            )
+    except Exception as e:
+        print(f"\033[91m[!] Report generation failed: {e}\033[0m")
 
     print("\033[92m[+] Analysis done\033[0m")
