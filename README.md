@@ -23,8 +23,8 @@ It supports multiple online services, generates PDF reports, and can save result
 
 ```bash
 # Clone the repository
-git clone https://github.com/SmerovacDusan/informatika-semestralni-projekt.git
-cd informatika-semestralni-projekt
+git clone https://github.com/SmerovacDusan/gecko-scan.git
+cd gecko-scan
 
 # (Optional) Create a virtual environment
 python -m venv venv
