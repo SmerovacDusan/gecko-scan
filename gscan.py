@@ -1,5 +1,6 @@
 import socket
 from os import system, name
+import sys
 import analysis_m
 import db_record_m
 
@@ -114,7 +115,8 @@ def commands():
     print("report [pdf|html]   Select report type (default PDF)")
     print("run                 Run the URL analysis with selected tools")
     print("exit                Exit from the app")
-    print("help                Display this message\n")
+    print("help                Display this message")
+    print("\n")
 
 def select_unselect(tool_name: str, selected: bool, connection: bool) -> bool:
     if not connection:
@@ -157,9 +159,15 @@ def tools():
     "|     |             | shortened links, or tiny URLs                                    |")
     print("+======================================================================================+")
 
+    print("\nPOSSIBLE COMMANDS:")
+    print("list                Display selected tools")
+    print("exit                Exit the tools selection")
+    print("[1|2|3|4]           Select tool")
+    print("\n")
+
     # tools command line
     while True:
-        choice = input("tools> ")
+        choice = input("tools> ").lower()
 
         if choice == "exit":
             break
@@ -172,20 +180,34 @@ def tools():
                 dnsdumpster = select_unselect("DNSDumpster", dnsdumpster, connection_dnsdumpster)
             elif choice == "4":
                 where_goes = select_unselect("WhereGoes", where_goes, connection_where_goes)
+            elif choice == "list":
+                tool_dict = {"VirusTotal": virus_total, "Whois": whois, "DNSDumpster": dnsdumpster, "WhereGoes": where_goes}
+                width = max(len(k) for k, v in tool_dict.items() if v)
+
+                print("+" + "="*(width+5) + "+")
+                print(f"| {'SELECTED TOOLS':<{width+1}} |")
+                print("+" + "="*(width+5) + "+")
+
+                for key, value in tool_dict.items():
+                    if value:
+                        print(f"| {key:<{width+2}}  |")
+
+                print("+" + "="*(width+5) + "+")
+
             else:
-                print("\033[91m[!] You must choose number between 1 and 4!\033[0m")
+                print("\033[91m[!] Unrecognized command\033[0m")
 
 # url command line
 # input check (enter), ask when rewriting
 def url():
     global target
     while True:
-        url = input("url> ")
-        if url.lower() == "exit":
+        url = input("url> ").lower()
+        if url == "exit":
             print(target)
             break
         else:
-            target = url.lower()
+            target = url
             print(f"\033[92m[+] Using: {target}\033[0m")
             break
 
@@ -194,13 +216,13 @@ def cli():
     global database_record, pdf_report, html_report
 
     while True:
-        user_input = input("> ")
+        user_input = input("> ").lower()
 
         if user_input == "help":
             commands()
         elif user_input == "exit":
             print("Bye! :)")
-            quit()
+            sys.exit(0)
         elif user_input == "tools":
             tools()
         elif user_input == "url":

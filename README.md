@@ -52,17 +52,24 @@ python gscan_gui.py     # Windows
 
 **CLI Commands**
 
-| Command       | Description                                                                                     |
-| -----------   | ----------------------------------------------------------------------------------------------- |
-| `help`        | Show available commands                                                                         |
-| `tools`       | Select one or more tools to use. To unselect a tool, type its number and confirm when prompted  |
-| `url`         | Set the target URL                                                                              |
-| `db on`       | Enable storing results in the database                                                          |
-| `db off`      | Disable storing results in the database                                                         |
-| `report pdf`  | Select PDF report. To unselect, type this command again                                         |
-| `report html` | Select HTML report. To unselect, type this command again                                        |
-| `run`         | Run the analysis using selected tools                                                           |
-| `exit`        | Exit the program                                                                                |
+| Command         | Description                                                                                     |
+| -------------   | ----------------------------------------------------------------------------------------------- |
+| `help`          | Show available commands                                                                         |
+| `tools`         | Tool selection command line                                                                     |
+| `url`           | Set the target URL                                                                              |
+| `db on`         | Enable storing results in the database                                                          |
+| `db off`        | Disable storing results in the database                                                         |
+| `report pdf`    | Select PDF report. To unselect, type this command again                                         |
+| `report html`   | Select HTML report. To unselect, type this command again                                        |
+| `run`           | Run the analysis using selected tools                                                           |
+| `exit`          | Exit the program                                                                                |
+
+**Tools Menu Commands**
+| Command         | Description                                                                                     |
+| -------------   | ----------------------------------------------------------------------------------------------- |
+| `[1\|2\|3\|4]`  | Select/unselect tool                                                                                     |
+| `list`          | Show selected tools                                                                             |
+| `exit`          | Exit tools menu                                                                                 |
 
 ---
 
